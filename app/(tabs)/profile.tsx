@@ -88,9 +88,9 @@ export default function ProfileScreen() {
     try {
       await AsyncStorage.setItem("profile_picture", uri);
       setLocalAvatar(uri);
-      Alert.alert("Success! 🎉", "Profile picture update ho gayi!");
+      Alert.alert("Success! 🎉", "Profile picture updated!");
     } catch (error) {
-      Alert.alert("Error", "Picture save nahi hui");
+      Alert.alert("Error", "Picture not save");
     } finally {
       setUploading(false);
     }

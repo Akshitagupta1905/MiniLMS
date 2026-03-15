@@ -184,7 +184,7 @@ export default function HomeScreen() {
             marginBottom: 8,
           }}
         >
-          Kuch gadbad ho gayi
+         Something went wrong
         </Text>
         <Text
           style={{

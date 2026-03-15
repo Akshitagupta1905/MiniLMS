@@ -31,7 +31,7 @@ export default function LoginScreen() {
     } catch (error: any) {
       Alert.alert(
         "Login Failed",
-        error.response?.data?.message || "Kuch gadbad ho gayi"
+        error.response?.data?.message || "Something went wrong"
       );
     }
   };
@@ -39,8 +39,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: COLORS.background }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+behavior={Platform.OS === "ios" ? "padding" : undefined}    >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View
           style={{

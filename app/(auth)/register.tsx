@@ -40,7 +40,7 @@ export default function RegisterScreen() {
     error.response?.data?.message ||
     error.response?.data?.errors?.[0]?.message ||
     JSON.stringify(error.response?.data) ||
-    "Kuch gadbad ho gayi";
+    "Something went wrong";
   Alert.alert("Register Failed", message);
 }
   };
@@ -48,8 +48,7 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: COLORS.background }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+behavior={Platform.OS === "ios" ? "padding" : undefined}    >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={{ flex: 1, justifyContent: "center", padding: 24 }}>
           {/* Header */}
@@ -89,7 +88,7 @@ export default function RegisterScreen() {
                 borderColor: COLORS.lightGray,
                 color: COLORS.black,
               }}
-              placeholder="please enter your name"
+              placeholder="Please enter your name"
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
