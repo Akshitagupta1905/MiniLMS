@@ -1,98 +1,300 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  RefreshControl,
+  ActivityIndicator,
+  Image,
+  Alert,
+} from "react-native";
+import { useEffect, useState, useCallback, memo } from "react";
+import { router } from "expo-router";
+import { useCourseStore } from "../../store/courseStore";
+import { useAuthStore } from "../../store/authStore";
+import { Course } from "../../types";
+import { COLORS } from "../../constants";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+// Course Card - alag component taaki performance achi rahe
+const CourseCard = memo(({ item }: { item: Course }) => {
+  const { toggleBookmark } = useCourseStore();
+
+  return (
+    <TouchableOpacity
+      style={{
+        backgroundColor: COLORS.white,
+        borderRadius: 16,
+        marginBottom: 16,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
+        overflow: "hidden",
+      }}
+      onPress={() => router.push(`/course/${item.id}` as any)}
+      activeOpacity={0.9}
+    >
+      {/* Thumbnail */}
+      <Image
+        source={{ uri: item.thumbnail }}
+        style={{ width: "100%", height: 160 }}
+        resizeMode="cover"
+      />
+
+      <View style={{ padding: 16 }}>
+        {/* Category */}
+        <View
+          style={{
+            backgroundColor: COLORS.primary + "20",
+            borderRadius: 6,
+            alignSelf: "flex-start",
+            marginBottom: 8,
+          }}
+        >
+          <Text
+            style={{
+              color: COLORS.primary,
+              fontSize: 12,
+              fontWeight: "600",
+              textTransform: "capitalize",
+            }}
+          >
+            {item.category}
+          </Text>
+        </View>
+
+        {/* Title */}
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "bold",
+            color: COLORS.black,
+            marginBottom: 8,
+          }}
+          numberOfLines={2}
+        >
+          {item.title}
+        </Text>
+
+        {/* Instructor */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 12,
+          }}
+        >
+          <Image
+            source={{ uri: item.instructorAvatar }}
+            style={{
+              width: 24,
+              height: 24,
+              borderRadius: 12,
+              marginRight: 8,
+            }}
+          />
+          <Text style={{ fontSize: 13, color: COLORS.gray }}>
+            {item.instructor}
+          </Text>
+        </View>
+
+        {/* Price aur Bookmark */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "bold",
+              color: COLORS.primary,
+            }}
+          >
+            ₹{item.price}
+          </Text>
+          <TouchableOpacity
+            onPress={() => toggleBookmark(item.id)}
+            style={{
+              padding: 8,
+              backgroundColor: item.isBookmarked
+                ? COLORS.primary + "20"
+                : COLORS.lightGray,
+              borderRadius: 8,
+            }}
+          >
+            <Text style={{ fontSize: 18 }}>
+              {item.isBookmarked ? "🔖" : "🏷️"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+});
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { fetchCourses, isLoading, error, setSearchQuery, getFilteredCourses } =
+    useCourseStore();
+  const { user } = useAuthStore();
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchCourses();
+    setRefreshing(false);
+  }, []);
+
+  const handleSearch = (text: string) => {
+    setSearchText(text);
+    setSearchQuery(text);
+  };
+
+  const filteredCourses = getFilteredCourses();
+
+  if (isLoading && !refreshing) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{ marginTop: 12, color: COLORS.gray }}>
+          Loading Courses...
+        </Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24 }}>
+        <Text style={{ fontSize: 40, marginBottom: 16 }}>😕</Text>
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+            color: COLORS.black,
+            marginBottom: 8,
+          }}
+        >
+          Kuch gadbad ho gayi
+        </Text>
+        <Text
+          style={{
+            fontSize: 14,
+            color: COLORS.gray,
+            textAlign: "center",
+            marginBottom: 24,
+          }}
+        >
+          {error}
+        </Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: COLORS.primary,
+            paddingHorizontal: 24,
+            paddingVertical: 12,
+            borderRadius: 12,
+          }}
+          onPress={fetchCourses}
+        >
+          <Text style={{ color: COLORS.white, fontWeight: "bold" }}>
+            Dobara Try Karo
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+      {/* Header */}
+      <View
+        style={{
+          backgroundColor: COLORS.white,
+          paddingTop: 56,
+          paddingHorizontal: 24,
+          paddingBottom: 16,
+        }}
+      >
+        <Text style={{ fontSize: 14, color: COLORS.gray }}>
+          Welcome 👋
+        </Text>
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: "bold",
+            color: COLORS.black,
+            marginBottom: 16,
+          }}
+        >
+          {user?.username || "Student"}
+        </Text>
+
+        {/* Search Bar */}
+        <View
+          style={{
+            backgroundColor: COLORS.background,
+            borderRadius: 12,
+            paddingHorizontal: 12,
+       
+            flexDirection: "row",
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: COLORS.lightGray,
+          }}
+        >
+          <Text style={{ marginRight: 8 }}>🔍</Text>
+          <TextInput
+            placeholder=" Search Course..."
+            value={searchText}
+            onChangeText={handleSearch}
+            style={{ flex: 1, fontSize: 15, color: COLORS.black }}
+          />
+        </View>
+      </View>
+
+      {/* Course List */}
+      <FlatList
+        data={filteredCourses}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <CourseCard item={item} />}
+        contentContainerStyle={{ padding: 16 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[COLORS.primary]}
+          />
+        }
+        ListEmptyComponent={
+          <View
+            style={{
+              alignItems: "center",
+              marginTop: 60,
+            }}
+          >
+            <Text style={{ fontSize: 40, marginBottom: 12 }}>🔍</Text>
+            <Text
+              style={{
+                fontSize: 16,
+                color: COLORS.gray,
+                textAlign: "center",
+              }}
+            >
+             No Course found
+            </Text>
+          </View>
+        }
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

@@ -1,33 +1,58 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs, router } from "expo-router";
+import { useEffect } from "react";
+import { useAuthStore } from "../../store/authStore";
+import { COLORS } from "../../constants";
+import { Text } from "react-native";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+export default function TabsLayout() {
+  const { isLoggedIn, isLoading } = useAuthStore();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    if (!isLoading && !isLoggedIn) {
+      router.replace("/login");
+    }
+  }, [isLoggedIn, isLoading]);
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.gray,
+        tabBarStyle: {
+          backgroundColor: COLORS.white,
+          borderTopWidth: 1,
+          borderTopColor: COLORS.lightGray,
+          height: 60,
+          paddingBottom: 8,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: "Courses",
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 20 }}>📚</Text>
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="bookmarks"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: "Bookmarks",
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 20 }}>🔖</Text>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 20 }}>👤</Text>
+          ),
         }}
       />
     </Tabs>
