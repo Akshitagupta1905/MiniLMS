@@ -24,10 +24,9 @@ export default function LoginScreen() {
       Alert.alert("Error", "Email aur password dono bharo");
       return;
     }
-
     try {
       await login(email, password);
-      router.replace("/(tabs)");
+      router.replace("/(tabs)" as any);
     } catch (error: any) {
       Alert.alert(
         "Login Failed",
@@ -39,17 +38,17 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: COLORS.background }}
-behavior={Platform.OS === "ios" ? "padding" : undefined}    >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            padding: 24,
-          }}
-        >
+      behavior={Platform.OS === "ios" ? "padding" : "padding"}
+      keyboardVerticalOffset={0}
+    >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={{ flex: 1, justifyContent: "center", padding: 24, minHeight: 600 }}>
           {/* Header */}
-          <View style={{ marginBottom: 40 ,justifyContent:'center',alignItems:'center'}}>
+          <View style={{ marginBottom: 40, justifyContent: "center", alignItems: "center" }}>
             <Text
               style={{
                 fontSize: 32,
@@ -61,7 +60,7 @@ behavior={Platform.OS === "ios" ? "padding" : undefined}    >
               MiniLMS 📚
             </Text>
             <Text style={{ fontSize: 16, color: COLORS.gray }}>
-              Welcome to Login Here!
+              Welcome! Login Here
             </Text>
           </View>
 
@@ -139,13 +138,7 @@ behavior={Platform.OS === "ios" ? "padding" : undefined}    >
             {isLoading ? (
               <ActivityIndicator color={COLORS.white} />
             ) : (
-              <Text
-                style={{
-                  color: COLORS.white,
-                  fontSize: 16,
-                  fontWeight: "bold",
-                }}
-              >
+              <Text style={{ color: COLORS.white, fontSize: 16, fontWeight: "bold" }}>
                 Login Here
               </Text>
             )}
@@ -154,9 +147,10 @@ behavior={Platform.OS === "ios" ? "padding" : undefined}    >
           {/* Register Link */}
           <TouchableOpacity
             style={{ marginTop: 24, alignItems: "center" }}
-onPress={() => router.push("/register" as any)}          >
+            onPress={() => router.push("/register" as any)}
+          >
             <Text style={{ color: COLORS.gray, fontSize: 14 }}>
-              No Account Login?{" "}
+              No Account?{" "}
               <Text style={{ color: COLORS.primary, fontWeight: "bold" }}>
                 Register Here
               </Text>

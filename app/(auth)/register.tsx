@@ -29,30 +29,35 @@ export default function RegisterScreen() {
       Alert.alert("Error", "Password should be at least 6 characters");
       return;
     }
-
-  try {
-  await register(username.toLowerCase(), email, password);
-  Alert.alert("Success", "Account created! Please login now.", [
-    { text: "OK", onPress: () => router.replace("/login") },
-  ]);
-} catch (error: any) {
-  const message =
-    error.response?.data?.message ||
-    error.response?.data?.errors?.[0]?.message ||
-    JSON.stringify(error.response?.data) ||
-    "Something went wrong";
-  Alert.alert("Register Failed", message);
-}
+    try {
+      await register(username.toLowerCase(), email, password);
+      Alert.alert("Success", "Account created! Please login now.", [
+        { text: "OK", onPress: () => router.replace("/login" as any) },
+      ]);
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.errors?.[0]?.message ||
+        JSON.stringify(error.response?.data) ||
+        "Something went wrong";
+      Alert.alert("Register Failed", message);
+    }
   };
 
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: COLORS.background }}
-behavior={Platform.OS === "ios" ? "padding" : undefined}    >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={{ flex: 1, justifyContent: "center", padding: 24 }}>
+      behavior={Platform.OS === "ios" ? "padding" : "padding"}
+      keyboardVerticalOffset={0}
+    >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={{ flex: 1, justifyContent: "center", padding: 24, minHeight: 650 }}>
           {/* Header */}
-          <View style={{ marginBottom: 40,justifyContent:'center',alignItems:'center'}}>
+          <View style={{ marginBottom: 40, justifyContent: "center", alignItems: "center" }}>
             <Text
               style={{
                 fontSize: 32,
@@ -61,9 +66,8 @@ behavior={Platform.OS === "ios" ? "padding" : undefined}    >
                 marginBottom: 8,
               }}
             >
-               Create Account 🎓
+              Create Account 🎓
             </Text>
-           
           </View>
 
           {/* Username */}
@@ -169,13 +173,7 @@ behavior={Platform.OS === "ios" ? "padding" : undefined}    >
             {isLoading ? (
               <ActivityIndicator color={COLORS.white} />
             ) : (
-              <Text
-                style={{
-                  color: COLORS.white,
-                  fontSize: 16,
-                  fontWeight: "bold",
-                }}
-              >
+              <Text style={{ color: COLORS.white, fontSize: 16, fontWeight: "bold" }}>
                 Create Account
               </Text>
             )}
@@ -187,9 +185,9 @@ behavior={Platform.OS === "ios" ? "padding" : undefined}    >
             onPress={() => router.back()}
           >
             <Text style={{ color: COLORS.gray, fontSize: 14 }}>
-             Already have an account?{" "}
+              Already have an account?{" "}
               <Text style={{ color: COLORS.primary, fontWeight: "bold" }}>
-                Login 
+                Login
               </Text>
             </Text>
           </TouchableOpacity>
